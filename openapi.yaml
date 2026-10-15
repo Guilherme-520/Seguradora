@@ -10,12 +10,11 @@ info:
     Autenticação: header `X-API-Key` com o valor da variável de ambiente
     `ORCHESTRATE_API_KEY` configurada no Vercel.
 
-    A versão publicada em `https://<seu-projeto>.vercel.app/api/openapi.yaml`
-    já vem com a URL do servidor preenchida.
+    Ambiente publicado: https://seguradora-blush.vercel.app
 
 servers:
-  # Troque pela URL do seu deploy no Vercel (ou baixe /api/openapi.yaml do deploy)
-  - url: https://SEU-PROJETO.vercel.app/api
+  - url: https://seguradora-blush.vercel.app/api
+    description: Produção (Vercel)
 
 security:
   - ApiKeyAuth: []
