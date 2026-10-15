@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  # ─── Backend API ──────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: seguros-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY}
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY}
+      ORCHESTRATE_API_KEY: ${ORCHESTRATE_API_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ─── Frontend ─────────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # VITE_API_URL é embutida no build estático.
+        # Em Docker local o browser acessa o backend pela porta publicada no host.
+        # Sobrescreva via .env: VITE_API_URL=https://meu-backend.com/api
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3001/api}
+    container_name: seguros-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+networks:
+  default:
+    name: seguros-network
